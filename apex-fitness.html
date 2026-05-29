@@ -1,0 +1,1040 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>APEX Fitness</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --gold:#ffcb1f;
+  --gold-dim:#c9a00f;
+  --bg:#0a0a0b;
+  --bg2:#111113;
+  --bg3:#18181c;
+  --bg4:#222228;
+  --text:#f0eff0;
+  --text2:#a0a0a8;
+  --text3:#606068;
+  --border:#2a2a32;
+  --red:#ff4040;
+  --green:#22c55e;
+}
+body{font-family:'Barlow',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+h1,h2,h3,h4,.display{font-family:'Barlow Condensed',sans-serif;letter-spacing:0.02em}
+
+.app{display:flex;flex-direction:column;height:100vh;max-width:480px;margin:0 auto;background:var(--bg);position:relative;overflow:hidden}
+.content{flex:1;overflow-y:auto;overflow-x:hidden;padding-bottom:70px}
+.content::-webkit-scrollbar{width:3px}
+.content::-webkit-scrollbar-track{background:transparent}
+.content::-webkit-scrollbar-thumb{background:var(--border)}
+
+.header{background:var(--bg2);border-bottom:1px solid var(--border);padding:14px 16px 12px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.logo{font-family:'Barlow Condensed',sans-serif;font-size:24px;font-weight:800;letter-spacing:0.08em;color:var(--gold)}
+.logo span{color:var(--text2);font-weight:400}
+
+.timer-chip{background:var(--bg4);border:1px solid var(--border);border-radius:20px;padding:5px 12px;display:flex;align-items:center;gap:8px;cursor:pointer}
+.timer-display{font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;color:var(--gold);min-width:46px;text-align:center}
+.timer-btn{background:none;border:none;color:var(--text2);cursor:pointer;padding:0;font-size:14px;transition:color 0.15s}
+.timer-btn:hover{color:var(--gold)}
+
+.bottom-nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:var(--bg2);border-top:1px solid var(--border);display:flex;z-index:200}
+.nav-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:8px 4px 10px;gap:3px;background:none;border:none;color:var(--text3);cursor:pointer;transition:color 0.15s;font-family:'Barlow',sans-serif;font-size:10px;letter-spacing:0.04em;text-transform:uppercase;font-weight:600}
+.nav-item.active{color:var(--gold)}
+.nav-item svg{width:20px;height:20px;stroke-width:1.8}
+
+.section-head{padding:20px 16px 12px;display:flex;align-items:center;justify-content:space-between}
+.section-head h2{font-size:26px;font-weight:700;letter-spacing:0.04em}
+.section-head .sub{font-size:12px;color:var(--text2);font-weight:500;letter-spacing:0.06em;text-transform:uppercase}
+.badge{background:var(--gold);color:#000;font-size:10px;font-weight:800;padding:3px 8px;border-radius:10px;letter-spacing:0.06em;text-transform:uppercase}
+
+.card{background:var(--bg3);border:1px solid var(--border);border-radius:12px;overflow:hidden;cursor:pointer;transition:border-color 0.15s}
+.card:hover{border-color:var(--gold)}
+.card-img{width:100%;height:90px;display:flex;align-items:center;justify-content:center;font-size:36px;background:var(--bg4)}
+.card-body{padding:10px 12px 12px}
+.card-title{font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;letter-spacing:0.04em;margin-bottom:2px}
+.card-meta{font-size:11px;color:var(--text2)}
+
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 16px}
+.full-grid{display:flex;flex-direction:column;gap:10px;padding:0 16px}
+
+.pills{display:flex;gap:8px;padding:0 16px 16px;overflow-x:auto}
+.pills::-webkit-scrollbar{display:none}
+.pill{background:var(--bg3);border:1px solid var(--border);border-radius:20px;padding:6px 14px;font-size:12px;font-weight:600;color:var(--text2);cursor:pointer;white-space:nowrap;transition:all 0.15s;letter-spacing:0.04em}
+.pill.active,.pill:hover{background:var(--gold);color:#000;border-color:var(--gold)}
+
+.prog-card{background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:14px;display:flex;align-items:center;gap:12px;cursor:pointer;transition:border-color 0.15s}
+.prog-card:hover{border-color:var(--gold)}
+.prog-icon{width:44px;height:44px;border-radius:10px;background:var(--bg4);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.prog-info{flex:1}
+.prog-name{font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;letter-spacing:0.04em;margin-bottom:2px}
+.prog-meta{font-size:11px;color:var(--text2)}
+.prog-arrow{color:var(--text3);font-size:20px}
+
+.detail{position:absolute;inset:0;background:var(--bg);z-index:300;overflow-y:auto;transform:translateX(100%);transition:transform 0.25s ease}
+.detail.open{transform:translateX(0)}
+.detail-header{background:var(--bg2);border-bottom:1px solid var(--border);padding:14px 16px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:10}
+.back-btn{background:var(--bg4);border:1px solid var(--border);border-radius:8px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text);font-size:20px;transition:border-color 0.15s;flex-shrink:0}
+.back-btn:hover{border-color:var(--gold)}
+.detail-title{font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:700;letter-spacing:0.04em}
+.detail-hero{background:var(--bg3);padding:20px 16px;border-bottom:1px solid var(--border)}
+.detail-hero-icon{font-size:48px;margin-bottom:8px}
+.detail-hero h1{font-size:32px;font-weight:800;letter-spacing:0.04em;line-height:1;margin-bottom:6px}
+.detail-hero p{font-size:13px;color:var(--text2);line-height:1.5}
+.detail-stats{display:flex;gap:12px;margin-top:12px}
+.stat-chip{background:var(--bg4);border:1px solid var(--border);border-radius:8px;padding:8px 14px;text-align:center}
+.stat-chip .val{font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:700;color:var(--gold)}
+.stat-chip .lbl{font-size:10px;color:var(--text2);text-transform:uppercase;letter-spacing:0.06em}
+
+.exercise-item{padding:14px 16px;border-bottom:1px solid var(--border);cursor:pointer;display:flex;align-items:center;gap:12px}
+.exercise-item:hover{background:var(--bg3)}
+.ex-num{width:28px;height:28px;border-radius:50%;background:var(--bg4);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;color:var(--gold);flex-shrink:0}
+.ex-info{flex:1}
+.ex-name{font-weight:600;font-size:14px;margin-bottom:2px}
+.ex-detail{font-size:11px;color:var(--text2)}
+.ex-expand{display:none;background:var(--bg3);border-bottom:1px solid var(--border);padding:12px 16px 14px}
+.section-label{padding:12px 16px 6px;font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.1em}
+
+.breath-circle{width:160px;height:160px;border-radius:50%;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;margin:24px auto;position:relative;transition:transform 0.8s ease,border-color 0.8s}
+.breath-circle.expand{border-color:var(--gold);transform:scale(1.2)}
+.breath-circle.hold{border-color:var(--text2)}
+.breath-circle.contract{border-color:var(--text3);transform:scale(0.85)}
+.breath-inner{width:100px;height:100px;border-radius:50%;background:var(--bg4);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px}
+.breath-phase{font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;letter-spacing:0.06em;color:var(--gold)}
+.breath-count{font-size:28px;font-weight:300;color:var(--text)}
+
+.step-card{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:14px;margin:0 16px 10px;display:flex;gap:12px;align-items:flex-start}
+.step-num{width:26px;height:26px;border-radius:50%;background:var(--gold);color:#000;font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.step-text{font-size:13px;line-height:1.5;color:var(--text2)}
+.step-text strong{color:var(--text)}
+
+.yoga-card{background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:14px;cursor:pointer;transition:border-color 0.15s}
+.yoga-card:hover{border-color:var(--gold)}
+.yoga-emoji{font-size:24px;margin-bottom:6px}
+.yoga-name{font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;letter-spacing:0.04em;margin-bottom:3px}
+.yoga-meta{font-size:11px;color:var(--text2)}
+.level-badge{display:inline-block;padding:2px 8px;border-radius:8px;font-size:10px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;margin-bottom:6px}
+.level-badge.beginner{background:rgba(34,197,94,0.15);color:#22c55e}
+.level-badge.intermediate{background:rgba(255,203,31,0.15);color:var(--gold)}
+.level-badge.advanced{background:rgba(255,64,64,0.15);color:#ff6060}
+
+.diet-card{background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:14px;cursor:pointer;transition:border-color 0.15s;margin-bottom:10px}
+.diet-card:hover{border-color:var(--gold)}
+.diet-tag{display:inline-block;padding:3px 10px;border-radius:8px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:8px}
+.diet-tag.pre{background:rgba(255,203,31,0.12);color:var(--gold)}
+.diet-tag.post{background:rgba(34,197,94,0.12);color:#22c55e}
+.diet-tag.loss{background:rgba(96,165,250,0.12);color:#60a5fa}
+.diet-tag.gain{background:rgba(239,68,68,0.12);color:#f87171}
+.diet-tag.veg{background:rgba(34,197,94,0.12);color:#4ade80}
+.diet-name{font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:700;letter-spacing:0.04em;margin-bottom:4px}
+.diet-desc{font-size:12px;color:var(--text2);line-height:1.5}
+.food-list{margin-top:10px;display:flex;flex-wrap:wrap;gap:6px}
+.food-item{background:var(--bg4);border:1px solid var(--border);border-radius:8px;padding:4px 10px;font-size:11px;color:var(--text2)}
+
+.combo-card{background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:16px;cursor:pointer;transition:border-color 0.15s;margin-bottom:10px}
+.combo-card:hover{border-color:var(--gold)}
+.combo-icon{font-size:36px;margin-bottom:8px}
+.combo-name{font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:800;letter-spacing:0.06em;color:var(--gold);margin-bottom:4px}
+.combo-desc{font-size:12px;color:var(--text2);line-height:1.5}
+
+.muscle-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:0 16px}
+.muscle-btn{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:12px 8px;text-align:center;cursor:pointer;transition:all 0.15s}
+.muscle-btn:hover,.muscle-btn.active{background:rgba(255,203,31,0.08);border-color:var(--gold)}
+.muscle-btn .icon{font-size:22px;margin-bottom:4px}
+.muscle-btn .name{font-size:11px;font-weight:600;color:var(--text2);letter-spacing:0.04em}
+.muscle-btn.active .name{color:var(--gold)}
+
+.btn-gold{background:var(--gold);color:#000;border:none;border-radius:10px;padding:12px 24px;font-family:'Barlow',sans-serif;font-size:14px;font-weight:700;cursor:pointer;letter-spacing:0.04em;transition:opacity 0.15s;width:100%}
+.btn-gold:hover{opacity:0.9}
+.btn-outline{background:transparent;color:var(--text);border:1px solid var(--border);border-radius:10px;padding:11px 24px;font-family:'Barlow',sans-serif;font-size:14px;font-weight:600;cursor:pointer;letter-spacing:0.04em;transition:border-color 0.15s;width:100%}
+.btn-outline:hover{border-color:var(--gold);color:var(--gold)}
+
+.timer-modal{position:fixed;bottom:80px;right:16px;width:210px;background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:16px;z-index:500;display:none;box-shadow:0 8px 32px rgba(0,0,0,0.7)}
+.timer-modal.open{display:block}
+.timer-big{font-family:'Barlow Condensed',sans-serif;font-size:52px;font-weight:700;color:var(--gold);text-align:center;letter-spacing:0.04em;line-height:1}
+.timer-controls{display:flex;gap:8px;margin-top:12px}
+.timer-ctrl-btn{flex:1;background:var(--bg4);border:1px solid var(--border);border-radius:8px;padding:8px;font-size:12px;font-weight:700;color:var(--text);cursor:pointer;letter-spacing:0.04em;transition:border-color 0.15s;font-family:'Barlow',sans-serif}
+.timer-ctrl-btn:hover{border-color:var(--gold);color:var(--gold)}
+.timer-mins{display:flex;justify-content:space-between;margin-top:8px}
+.min-btn{background:none;border:none;font-size:11px;color:var(--text3);cursor:pointer;padding:4px;font-family:'Barlow',sans-serif}
+.min-btn.active,.min-btn:hover{color:var(--gold)}
+.timer-progress{height:3px;background:var(--bg4);border-radius:2px;margin-top:10px;overflow:hidden}
+.timer-progress-bar{height:100%;background:var(--gold);border-radius:2px;transition:width 1s linear}
+.pad16{padding:0 16px}
+</style>
+</head>
+<body>
+<div class="app">
+  <!-- HEADER -->
+  <div class="header">
+    <div class="logo">APEX <span>FIT</span></div>
+    <div style="display:flex;align-items:center;gap:8px">
+      <div class="timer-chip" onclick="toggleTimer()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ffcb1f" stroke-width="2"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2"/><path d="M9 3h6m-3 0v2"/></svg>
+        <span class="timer-display" id="timerDisplay">10:00</span>
+        <button class="timer-btn" id="timerPlayBtn" onclick="event.stopPropagation();togglePlayPause()">▶</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TIMER MODAL -->
+  <div class="timer-modal" id="timerModal">
+    <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;font-weight:700;margin-bottom:8px">Workout Timer</div>
+    <div class="timer-big" id="timerBig">10:00</div>
+    <div class="timer-progress"><div class="timer-progress-bar" id="timerBar" style="width:100%"></div></div>
+    <div class="timer-controls">
+      <button class="timer-ctrl-btn" onclick="togglePlayPause()" id="playPauseBtn">START</button>
+      <button class="timer-ctrl-btn" onclick="resetTimer()">RESET</button>
+    </div>
+    <div style="font-size:11px;color:var(--text3);margin-top:10px;margin-bottom:4px;letter-spacing:0.06em">DURATION</div>
+    <div class="timer-mins">
+      <button class="min-btn active" onclick="setDuration(10,this)">10m</button>
+      <button class="min-btn" onclick="setDuration(20,this)">20m</button>
+      <button class="min-btn" onclick="setDuration(30,this)">30m</button>
+      <button class="min-btn" onclick="setDuration(40,this)">40m</button>
+      <button class="min-btn" onclick="setDuration(50,this)">50m</button>
+      <button class="min-btn" onclick="setDuration(60,this)">60m</button>
+    </div>
+  </div>
+
+  <!-- MAIN CONTENT -->
+  <div class="content" id="mainContent">
+
+    <!-- WORKOUT TAB -->
+    <div id="tab-workout">
+      <div class="section-head">
+        <div><div class="sub">Today's Plan</div><h2>Workouts</h2></div>
+        <span class="badge">12 Programs</span>
+      </div>
+      <div class="pills" id="goalPills">
+        <div class="pill active" onclick="filterGoal(this,'all')">All</div>
+        <div class="pill" onclick="filterGoal(this,'loss')">Weight Loss</div>
+        <div class="pill" onclick="filterGoal(this,'gain')">Weight Gain</div>
+        <div class="pill" onclick="filterGoal(this,'strength')">Strength</div>
+        <div class="pill" onclick="filterGoal(this,'general')">General</div>
+      </div>
+      <div class="section-label">Categories</div>
+      <div class="grid2" style="margin-bottom:16px">
+        <div class="card" onclick="openWorkoutCat('home')"><div class="card-img">🏠</div><div class="card-body"><div class="card-title">Home Workouts</div><div class="card-meta">No equipment</div></div></div>
+        <div class="card" onclick="openWorkoutCat('loss')"><div class="card-img">🔥</div><div class="card-body"><div class="card-title">Weight Loss</div><div class="card-meta">Fat burning</div></div></div>
+        <div class="card" onclick="openWorkoutCat('lower')"><div class="card-img">🦵</div><div class="card-body"><div class="card-title">Lower Body</div><div class="card-meta">Legs & glutes</div></div></div>
+        <div class="card" onclick="openWorkoutCat('upper')"><div class="card-img">💪</div><div class="card-body"><div class="card-title">Upper Body</div><div class="card-meta">Chest, back, arms</div></div></div>
+        <div class="card" onclick="openWorkoutCat('core')"><div class="card-img">⚡</div><div class="card-body"><div class="card-title">Core Training</div><div class="card-meta">Abs & obliques</div></div></div>
+        <div class="card" onclick="openWorkoutCat('back')"><div class="card-img">🏋️</div><div class="card-body"><div class="card-title">Back Training</div><div class="card-meta">Pull & posture</div></div></div>
+      </div>
+      <div class="section-label">Muscle Groups</div>
+      <div class="muscle-grid" style="margin-bottom:16px">
+        <div class="muscle-btn active" onclick="selectMuscle(this,'chest')"><div class="icon">🫁</div><div class="name">Chest</div></div>
+        <div class="muscle-btn" onclick="selectMuscle(this,'back')"><div class="icon">🔙</div><div class="name">Back</div></div>
+        <div class="muscle-btn" onclick="selectMuscle(this,'shoulders')"><div class="icon">🙆</div><div class="name">Shoulders</div></div>
+        <div class="muscle-btn" onclick="selectMuscle(this,'arms')"><div class="icon">💪</div><div class="name">Arms</div></div>
+        <div class="muscle-btn" onclick="selectMuscle(this,'legs')"><div class="icon">🦵</div><div class="name">Legs</div></div>
+        <div class="muscle-btn" onclick="selectMuscle(this,'core')"><div class="icon">⚡</div><div class="name">Core</div></div>
+      </div>
+      <div class="section-label">Pre-Built Programs</div>
+      <div class="full-grid" id="programList">
+        <div class="prog-card" data-goal="general loss" onclick="openProgram('hiit')"><div class="prog-icon">⚡</div><div class="prog-info"><div class="prog-name">HIIT</div><div class="prog-meta">High Intensity Interval Training · 25 min</div></div><div class="prog-arrow">›</div></div>
+        <div class="prog-card" data-goal="loss general" onclick="openProgram('quicksweat')"><div class="prog-icon">💦</div><div class="prog-info"><div class="prog-name">Quick Sweat</div><div class="prog-meta">Fast cardio blast · 15 min</div></div><div class="prog-arrow">›</div></div>
+        <div class="prog-card" data-goal="strength general" onclick="openProgram('fullbody')"><div class="prog-icon">🔥</div><div class="prog-info"><div class="prog-name">High Intensity Full Body</div><div class="prog-meta">Total body burn · 40 min</div></div><div class="prog-arrow">›</div></div>
+        <div class="prog-card" data-goal="loss general" onclick="openProgram('fastintense')"><div class="prog-icon">⏱️</div><div class="prog-info"><div class="prog-name">Fast But Intense</div><div class="prog-meta">Max effort, minimal time · 20 min</div></div><div class="prog-arrow">›</div></div>
+        <div class="prog-card" data-goal="general loss" onclick="openProgram('7min')"><div class="prog-icon">7️⃣</div><div class="prog-info"><div class="prog-name">7-Minute Intense</div><div class="prog-meta">Science-backed circuit · 7 min</div></div><div class="prog-arrow">›</div></div>
+        <div class="prog-card" data-goal="general strength" onclick="openProgram('prosession')"><div class="prog-icon">🎯</div><div class="prog-info"><div class="prog-name">Quick Pro Session</div><div class="prog-meta">Structured athlete circuit · 30 min</div></div><div class="prog-arrow">›</div></div>
+        <div class="prog-card" data-goal="loss strength" onclick="openProgram('sweathrd')"><div class="prog-icon">🌊</div><div class="prog-info"><div class="prog-name">Sweat Hard</div><div class="prog-meta">Endurance & power · 45 min</div></div><div class="prog-arrow">›</div></div>
+        <div class="prog-card" data-goal="strength gain" onclick="openProgram('fullbodystr')"><div class="prog-icon">💪</div><div class="prog-info"><div class="prog-name">Full Body Training</div><div class="prog-meta">Compound lifts · 50 min</div></div><div class="prog-arrow">›</div></div>
+        <div class="prog-card" data-goal="strength gain" onclick="openProgram('upperlower')"><div class="prog-icon">📐</div><div class="prog-info"><div class="prog-name">Upper / Lower Split</div><div class="prog-meta">4-day program · 45 min</div></div><div class="prog-arrow">›</div></div>
+        <div class="prog-card" data-goal="general strength" onclick="openProgram('beginner')"><div class="prog-icon">🌱</div><div class="prog-info"><div class="prog-name">Beginner Strength</div><div class="prog-meta">Foundation building · 35 min</div></div><div class="prog-arrow">›</div></div>
+        <div class="prog-card" data-goal="general" onclick="openProgram('starter')"><div class="prog-icon">🚀</div><div class="prog-info"><div class="prog-name">Full Starter Program</div><div class="prog-meta">Complete beginner plan · 6 weeks</div></div><div class="prog-arrow">›</div></div>
+        <div class="prog-card" data-goal="general strength" onclick="openProgram('allgroups')"><div class="prog-icon">🏆</div><div class="prog-info"><div class="prog-name">All Muscle Groups</div><div class="prog-meta">Full body comprehensive · 60 min</div></div><div class="prog-arrow">›</div></div>
+      </div>
+      <div style="height:16px"></div>
+    </div>
+
+    <!-- YOGA TAB -->
+    <div id="tab-yoga" style="display:none">
+      <div class="section-head"><div><div class="sub">Mind & Body</div><h2>Yoga</h2></div></div>
+      <div class="pills" id="yogaPills">
+        <div class="pill active" onclick="filterYoga(this,'all')">All</div>
+        <div class="pill" onclick="filterYoga(this,'beginner')">Beginner</div>
+        <div class="pill" onclick="filterYoga(this,'intermediate')">Intermediate</div>
+        <div class="pill" onclick="filterYoga(this,'advanced')">Advanced</div>
+      </div>
+      <div class="grid2" id="yogaGrid" style="padding-bottom:16px">
+        <div class="yoga-card" data-level="beginner" onclick="openYoga('morning')"><div class="yoga-emoji">🌅</div><span class="level-badge beginner">Beginner</span><div class="yoga-name">Morning Flow</div><div class="yoga-meta">20 min · 8 poses · Energizing</div></div>
+        <div class="yoga-card" data-level="beginner" onclick="openYoga('relaxing')"><div class="yoga-emoji">🌙</div><span class="level-badge beginner">Beginner</span><div class="yoga-name">Relaxing Evening</div><div class="yoga-meta">25 min · 10 poses · Calming</div></div>
+        <div class="yoga-card" data-level="intermediate" onclick="openYoga('power')"><div class="yoga-emoji">🔥</div><span class="level-badge intermediate">Intermediate</span><div class="yoga-name">Power Vinyasa</div><div class="yoga-meta">40 min · 15 poses · Dynamic</div></div>
+        <div class="yoga-card" data-level="beginner" onclick="openYoga('stretch')"><div class="yoga-emoji">🧘</div><span class="level-badge beginner">Beginner</span><div class="yoga-name">Full Body Stretch</div><div class="yoga-meta">30 min · 12 poses · Flexibility</div></div>
+        <div class="yoga-card" data-level="intermediate" onclick="openYoga('balance')"><div class="yoga-emoji">⚖️</div><span class="level-badge intermediate">Intermediate</span><div class="yoga-name">Balance & Focus</div><div class="yoga-meta">35 min · 12 poses · Stability</div></div>
+        <div class="yoga-card" data-level="advanced" onclick="openYoga('advanced')"><div class="yoga-emoji">🦅</div><span class="level-badge advanced">Advanced</span><div class="yoga-name">Advanced Flow</div><div class="yoga-meta">50 min · 18 poses · Intense</div></div>
+        <div class="yoga-card" data-level="beginner" onclick="openYoga('stress')"><div class="yoga-emoji">💆</div><span class="level-badge beginner">Beginner</span><div class="yoga-name">Stress Relief</div><div class="yoga-meta">20 min · 8 poses · Restorative</div></div>
+        <div class="yoga-card" data-level="intermediate" onclick="openYoga('core-yoga')"><div class="yoga-emoji">🎯</div><span class="level-badge intermediate">Intermediate</span><div class="yoga-name">Core & Strength</div><div class="yoga-meta">35 min · 14 poses · Toning</div></div>
+      </div>
+    </div>
+
+    <!-- BREATHING TAB -->
+    <div id="tab-breathing" style="display:none">
+      <div class="section-head"><div><div class="sub">Recovery & Focus</div><h2>Breathing</h2></div></div>
+      <div class="pad16">
+        <div class="diet-card" onclick="openBreath('box')"><div class="diet-tag pre">4-4-4-4</div><div class="diet-name">Box Breathing</div><div class="diet-desc">A stress-reduction technique used by military and athletes. Equal-timed inhale, hold, exhale, hold cycles calm the nervous system.</div></div>
+        <div class="diet-card" onclick="openBreath('478')"><div class="diet-tag veg">4-7-8</div><div class="diet-name">4-7-8 Breathing</div><div class="diet-desc">Developed by Dr. Andrew Weil based on pranayama. Promotes sleep, reduces anxiety. Exhale is double the inhale for nervous system regulation.</div></div>
+        <div class="diet-card" onclick="openBreath('diaphragm')"><div class="diet-tag loss">Deep</div><div class="diet-name">Diaphragmatic Breathing</div><div class="diet-desc">Belly breathing activates the diaphragm fully, increases oxygen delivery, and reduces blood pressure through parasympathetic activation.</div></div>
+        <div class="diet-card" onclick="openBreath('alternate')"><div class="diet-tag post">Pranayama</div><div class="diet-name">Alternate Nostril</div><div class="diet-desc">Nadi Shodhana pranayama. Balances the left and right hemispheres, calms the mind, and is used in yoga traditions to prepare for meditation.</div></div>
+        <div class="diet-card" onclick="openBreath('pursed')"><div class="diet-tag gain">2:4 Ratio</div><div class="diet-name">Pursed Lip Breathing</div><div class="diet-desc">Recommended by respiratory therapists. Extends the exhale to slow breathing rate, improve ventilation, and reduce breathlessness during exercise.</div></div>
+      </div>
+    </div>
+
+    <!-- DIET TAB -->
+    <div id="tab-diet" style="display:none">
+      <div class="section-head"><div><div class="sub">Fuel & Recovery</div><h2>Nutrition</h2></div></div>
+      <div class="pills" id="dietPills">
+        <div class="pill active" onclick="filterDiet(this,'all')">All</div>
+        <div class="pill" onclick="filterDiet(this,'pre')">Pre-Workout</div>
+        <div class="pill" onclick="filterDiet(this,'post')">Post-Workout</div>
+        <div class="pill" onclick="filterDiet(this,'loss')">Weight Loss</div>
+        <div class="pill" onclick="filterDiet(this,'gain')">Weight Gain</div>
+        <div class="pill" onclick="filterDiet(this,'veg')">Vegetarian</div>
+      </div>
+      <div class="pad16" id="dietList">
+        <div class="diet-card" data-cat="pre" onclick="openDiet('pre-energy')"><div class="diet-tag pre">Pre-Workout</div><div class="diet-name">Energy Boost Meal</div><div class="diet-desc">Consume 1–3 hours before training. Combines complex carbohydrates for sustained energy with moderate protein to prime muscle protein synthesis.</div><div class="food-list"><span class="food-item">Oats</span><span class="food-item">Banana</span><span class="food-item">Greek yogurt</span><span class="food-item">Whole grain toast</span></div></div>
+        <div class="diet-card" data-cat="post" onclick="openDiet('post-recovery')"><div class="diet-tag post">Post-Workout</div><div class="diet-name">Recovery Meal</div><div class="diet-desc">Consume within 30–60 minutes post-training. Prioritises protein for muscle repair and fast-acting carbohydrates to replenish glycogen stores.</div><div class="food-list"><span class="food-item">Chicken breast</span><span class="food-item">Rice</span><span class="food-item">Sweet potato</span><span class="food-item">Egg whites</span></div></div>
+        <div class="diet-card" data-cat="loss" onclick="openDiet('calorie-deficit')"><div class="diet-tag loss">Weight Loss</div><div class="diet-name">Calorie Deficit Plan</div><div class="diet-desc">Based on a moderate 300–500 kcal daily deficit. High-volume, low-calorie foods maintain satiety while supporting lean mass preservation with adequate protein.</div><div class="food-list"><span class="food-item">Leafy greens</span><span class="food-item">Lean protein</span><span class="food-item">Legumes</span><span class="food-item">Berries</span></div></div>
+        <div class="diet-card" data-cat="gain" onclick="openDiet('muscle-gain')"><div class="diet-tag gain">Weight Gain</div><div class="diet-name">Muscle Building Plan</div><div class="diet-desc">Caloric surplus of 250–500 kcal with high protein intake (1.6–2.2 g/kg body weight). Timing around training maximises hypertrophic response.</div><div class="food-list"><span class="food-item">Red meat</span><span class="food-item">Salmon</span><span class="food-item">Whole milk</span><span class="food-item">Nuts & seeds</span></div></div>
+        <div class="diet-card" data-cat="veg" onclick="openDiet('veg-plan')"><div class="diet-tag veg">Vegetarian</div><div class="diet-name">Plant-Based Fitness</div><div class="diet-desc">Combines complementary plant proteins to achieve complete amino acid profiles. Iron, zinc, B12, and omega-3 sources are emphasised to meet athletic needs.</div><div class="food-list"><span class="food-item">Lentils</span><span class="food-item">Quinoa</span><span class="food-item">Tofu</span><span class="food-item">Tempeh</span><span class="food-item">Chia seeds</span></div></div>
+        <div class="diet-card" data-cat="gain" onclick="openDiet('nonveg-plan')"><div class="diet-tag gain">Non-Vegetarian</div><div class="diet-name">High-Protein Omnivore</div><div class="diet-desc">Leverages animal protein's high bioavailability and complete amino acid profiles to optimise muscle protein synthesis before and after training.</div><div class="food-list"><span class="food-item">Chicken</span><span class="food-item">Turkey</span><span class="food-item">Eggs</span><span class="food-item">Tuna</span><span class="food-item">Greek yogurt</span></div></div>
+      </div>
+      <div style="height:16px"></div>
+    </div>
+
+    <!-- DEFENCE TAB -->
+    <div id="tab-defence" style="display:none">
+      <div class="section-head"><div><div class="sub">Combat & Movement</div><h2>Defence</h2></div></div>
+      <div class="pad16">
+        <div style="background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:16px"><div style="font-size:12px;color:var(--text2);line-height:1.5">Learn fundamental boxing mechanics for fitness, coordination, and self-defence. All techniques are based on orthodox boxing stance fundamentals.</div></div>
+        <div class="section-label" style="padding:0 0 8px">Striking Fundamentals</div>
+        <div class="combo-card" onclick="openCombat('jab')"><div class="combo-icon">👊</div><div class="combo-name">Jab</div><div class="combo-desc">The foundational straight punch thrown with the lead hand. Used for range-finding, setting up combinations, and creating distance.</div></div>
+        <div class="combo-card" onclick="openCombat('cross')"><div class="combo-icon">✊</div><div class="combo-name">Cross</div><div class="combo-desc">A powerful straight punch from the rear hand. Rotates the hips and shoulders to generate maximum force through the kinetic chain.</div></div>
+        <div class="combo-card" onclick="openCombat('hook')"><div class="combo-icon">🤜</div><div class="combo-name">Hook</div><div class="combo-desc">A horizontal arc punch targeting the temple or jaw. Power comes from rotation of the core and pivot of the lead foot.</div></div>
+        <div class="section-label" style="padding:12px 0 8px">Combinations</div>
+        <div class="prog-card" style="margin-bottom:10px"><div class="prog-icon">1️⃣</div><div class="prog-info"><div class="prog-name">1-2 Combo</div><div class="prog-meta">Jab + Cross · Beginner</div></div></div>
+        <div class="prog-card" style="margin-bottom:10px"><div class="prog-icon">2️⃣</div><div class="prog-info"><div class="prog-name">1-2-3 Combo</div><div class="prog-meta">Jab + Cross + Hook · Intermediate</div></div></div>
+        <div class="prog-card" style="margin-bottom:10px"><div class="prog-icon">🥊</div><div class="prog-info"><div class="prog-name">Shadow Boxing Round</div><div class="prog-meta">3 min round · Cardio + form</div></div></div>
+      </div>
+      <div style="height:16px"></div>
+    </div>
+  </div>
+
+  <!-- BOTTOM NAV -->
+  <div class="bottom-nav">
+    <button class="nav-item active" id="nav-workout" onclick="switchTab('workout')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M6 4v16M18 4v16M6 8h4m4 0h4M6 16h4m4 0h4"/></svg>Workout
+    </button>
+    <button class="nav-item" id="nav-yoga" onclick="switchTab('yoga')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="5" r="1.5"/><path d="M5 16c0-3 3-6 7-6s7 3 7 6M8 16l-2 4M16 16l2 4M12 10v6"/></svg>Yoga
+    </button>
+    <button class="nav-item" id="nav-breathing" onclick="switchTab('breathing')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 3c0 0-6 4-6 9a6 6 0 0 0 12 0c0-5-6-9-6-9z"/><path d="M12 12v6"/></svg>Breathe
+    </button>
+    <button class="nav-item" id="nav-diet" onclick="switchTab('diet')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 2a3 3 0 0 1 3 3v1h2a2 2 0 0 1 2 2v3a7 7 0 0 1-7 7 7 7 0 0 1-7-7V8a2 2 0 0 1 2-2h2V5a3 3 0 0 1 3-3z"/></svg>Diet
+    </button>
+    <button class="nav-item" id="nav-defence" onclick="switchTab('defence')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 3l8 4v5c0 5-3.5 9.7-8 11-4.5-1.3-8-6-8-11V7l8-4z"/></svg>Defence
+    </button>
+  </div>
+
+  <!-- DETAIL PANELS -->
+  <div class="detail" id="detail-workout-cat">
+    <div class="detail-header"><button class="back-btn" onclick="closeDetail('detail-workout-cat')">‹</button><div class="detail-title" id="wcatTitle">Category</div></div>
+    <div id="wcatContent"></div>
+  </div>
+  <div class="detail" id="detail-program">
+    <div class="detail-header"><button class="back-btn" onclick="closeDetail('detail-program')">‹</button><div class="detail-title" id="progTitle">Program</div></div>
+    <div id="progContent"></div>
+  </div>
+  <div class="detail" id="detail-yoga">
+    <div class="detail-header"><button class="back-btn" onclick="closeDetail('detail-yoga')">‹</button><div class="detail-title" id="yogaTitle">Yoga</div></div>
+    <div id="yogaContent"></div>
+  </div>
+  <div class="detail" id="detail-breath">
+    <div class="detail-header"><button class="back-btn" onclick="closeDetail('detail-breath')">‹</button><div class="detail-title" id="breathTitle">Breathing</div></div>
+    <div id="breathContent"></div>
+  </div>
+  <div class="detail" id="detail-diet">
+    <div class="detail-header"><button class="back-btn" onclick="closeDetail('detail-diet')">‹</button><div class="detail-title" id="dietTitle">Nutrition</div></div>
+    <div id="dietContent"></div>
+  </div>
+  <div class="detail" id="detail-combat">
+    <div class="detail-header"><button class="back-btn" onclick="closeDetail('detail-combat')">‹</button><div class="detail-title" id="combatTitle">Technique</div></div>
+    <div id="combatContent"></div>
+  </div>
+</div>
+
+<script>
+// TIMER
+let timerDuration=600,timerRemaining=600,timerRunning=false,timerInterval=null;
+function toggleTimer(){document.getElementById('timerModal').classList.toggle('open')}
+function setDuration(mins,btn){
+  document.querySelectorAll('.min-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  timerDuration=mins*60;timerRemaining=mins*60;updateTimerDisplay();
+}
+function updateTimerDisplay(){
+  let m=Math.floor(timerRemaining/60),s=timerRemaining%60;
+  let str=(m<10?'0':'')+m+':'+(s<10?'0':'')+s;
+  document.getElementById('timerDisplay').textContent=str;
+  document.getElementById('timerBig').textContent=str;
+  document.getElementById('timerBar').style.width=(timerRemaining/timerDuration*100)+'%';
+}
+function togglePlayPause(){
+  if(timerRunning){
+    clearInterval(timerInterval);timerRunning=false;
+    document.getElementById('playPauseBtn').textContent='RESUME';
+    document.getElementById('timerPlayBtn').textContent='▶';
+  } else {
+    timerRunning=true;
+    document.getElementById('playPauseBtn').textContent='PAUSE';
+    document.getElementById('timerPlayBtn').textContent='⏸';
+    timerInterval=setInterval(()=>{
+      if(timerRemaining>0){timerRemaining--;updateTimerDisplay();}
+      else{clearInterval(timerInterval);timerRunning=false;document.getElementById('playPauseBtn').textContent='START';}
+    },1000);
+  }
+}
+function resetTimer(){
+  clearInterval(timerInterval);timerRunning=false;timerRemaining=timerDuration;
+  document.getElementById('playPauseBtn').textContent='START';
+  document.getElementById('timerPlayBtn').textContent='▶';
+  updateTimerDisplay();
+}
+
+// NAV
+function switchTab(tab){
+  ['workout','yoga','breathing','diet','defence'].forEach(t=>{
+    document.getElementById('tab-'+t).style.display=t===tab?'block':'none';
+    document.getElementById('nav-'+t).classList.toggle('active',t===tab);
+  });
+  document.getElementById('mainContent').scrollTop=0;
+}
+
+// DETAIL
+function openDetail(id){document.getElementById(id).classList.add('open')}
+function closeDetail(id){document.getElementById(id).classList.remove('open')}
+
+// FILTERS
+function filterGoal(el,goal){
+  document.querySelectorAll('#goalPills .pill').forEach(p=>p.classList.remove('active'));
+  el.classList.add('active');
+  document.querySelectorAll('#programList .prog-card').forEach(c=>{
+    c.style.display=(goal==='all'||c.dataset.goal.includes(goal))?'flex':'none';
+  });
+}
+function selectMuscle(el,muscle){
+  document.querySelectorAll('.muscle-btn').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  openWorkoutCat(muscle);
+}
+function filterYoga(el,level){
+  document.querySelectorAll('#yogaPills .pill').forEach(p=>p.classList.remove('active'));
+  el.classList.add('active');
+  document.querySelectorAll('#yogaGrid .yoga-card').forEach(c=>{
+    c.style.display=(level==='all'||c.dataset.level===level)?'block':'none';
+  });
+}
+function filterDiet(el,cat){
+  document.querySelectorAll('#dietPills .pill').forEach(p=>p.classList.remove('active'));
+  el.classList.add('active');
+  document.querySelectorAll('#dietList .diet-card').forEach(c=>{
+    c.style.display=(cat==='all'||c.dataset.cat.includes(cat))?'block':'none';
+  });
+}
+
+// WORKOUT CATEGORY DATA
+const catData={
+  chest:{name:'Chest',icon:'🫁',desc:'Target all regions of the pectoralis major and minor.',subs:['Upper Chest','Mid Chest','Lower Chest','Inner Chest'],exercises:[
+    {name:'Incline Barbell Press',sets:'4×8',target:'Upper chest',form:'Lie on 30–45° incline. Grip slightly wider than shoulder width. Lower bar to upper chest, press explosively.'},
+    {name:'Flat Bench Press',sets:'4×8',target:'Mid chest',form:'Lie flat. Retract scapula. Lower bar to nipple line with control. Drive through feet.'},
+    {name:'Decline Push-Up',sets:'3×12',target:'Lower chest',form:'Feet elevated on bench. Hands shoulder-width. Lower chest to floor, press up fully.'},
+    {name:'Cable Crossover',sets:'3×15',target:'Inner chest',form:'Set pulleys high. Lean slightly forward. Bring handles together with slight elbow bend.'},
+    {name:'Dumbbell Flye',sets:'3×12',target:'Chest stretch',form:'Slight elbow bend. Lower until stretch felt. Do not hyperextend. Return controlled.'},
+  ]},
+  back:{name:'Back',icon:'🔙',desc:'Develop lat width, mid-back thickness, and spinal erectors.',subs:['Lats','Rhomboids','Traps','Lower Back'],exercises:[
+    {name:'Pull-Up',sets:'4×6',target:'Lats, biceps',form:'Full hang. Depress scapula first. Pull elbows toward hips. Chin over bar. Control descent.'},
+    {name:'Barbell Row',sets:'4×8',target:'Mid back, lats',form:'Hip hinge to ~45°. Brace core. Pull bar to lower sternum. Lead with elbows.'},
+    {name:'Lat Pulldown',sets:'3×12',target:'Lats',form:'Lean back slightly. Pull bar to upper chest. Squeeze lats at bottom. Slow return.'},
+    {name:'Seated Cable Row',sets:'3×12',target:'Rhomboids, mid traps',form:'Sit tall. Pull to navel. Squeeze shoulder blades together. Extend arms fully.'},
+    {name:'Deadlift',sets:'3×5',target:'Full posterior chain',form:'Bar over mid-foot. Hip-width stance. Neutral spine. Drive floor away. Lock out hips.'},
+  ]},
+  shoulders:{name:'Shoulders',icon:'🙆',desc:'Develop anterior, lateral, and posterior deltoid heads.',subs:['Front Delt','Side Delt','Rear Delt','Rotator Cuff'],exercises:[
+    {name:'Overhead Press',sets:'4×6',target:'Anterior & lateral delt',form:'Bar at upper chest. Core braced. Press overhead. Lock out. Bar travels slightly back over head.'},
+    {name:'Lateral Raise',sets:'4×15',target:'Lateral delt',form:'Slight bend in elbows. Lead with elbows to shoulder height. Avoid shrugging. Slow eccentric.'},
+    {name:'Face Pull',sets:'3×15',target:'Rear delt, external rotators',form:'Rope at head height. Pull to forehead. Elbows high and wide. External rotation at end.'},
+    {name:'Arnold Press',sets:'3×10',target:'All three heads',form:'Start with palms facing you. Rotate outward as you press up. Full range of motion.'},
+  ]},
+  arms:{name:'Arms',icon:'💪',desc:'Develop biceps, triceps, and forearm strength.',subs:['Biceps','Triceps','Forearms'],exercises:[
+    {name:'Barbell Curl',sets:'3×10',target:'Biceps brachii',form:'Stand tall. Grip shoulder-width. Do not swing. Full range. Squeeze at top.'},
+    {name:'Hammer Curl',sets:'3×12',target:'Brachialis, brachioradialis',form:'Neutral grip (thumbs up). Curl to shoulder. Controlled eccentric. Alternate or together.'},
+    {name:'Tricep Pushdown',sets:'3×15',target:'Lateral head tricep',form:'Elbows pinned to sides. Push rope/bar to full extension. Squeeze triceps. Slow return.'},
+    {name:'Close-Grip Bench',sets:'3×8',target:'Triceps',form:'Grip shoulder-width or slightly closer. Elbows tracking inward. Full chest touch to full extension.'},
+    {name:'Skull Crusher',sets:'3×12',target:'Long head tricep',form:'Lie flat. Lower bar to forehead by bending elbows. Press back. Keep upper arms still.'},
+  ]},
+  legs:{name:'Legs',icon:'🦵',desc:'Build quad, hamstring, glute, and calf strength.',subs:['Quads','Hamstrings','Glutes','Calves'],exercises:[
+    {name:'Barbell Squat',sets:'4×6',target:'Quads, glutes',form:'Bar on traps. Hip-width stance. Brace core. Squat below parallel. Drive knees out. Full extension.'},
+    {name:'Romanian Deadlift',sets:'3×8',target:'Hamstrings, glutes',form:'Hinge at hip. Soft knee. Bar close to legs. Feel hamstring stretch. Return by driving hips forward.'},
+    {name:'Leg Press',sets:'3×12',target:'Quads, glutes',form:'Feet shoulder-width. Full depth without butt lifting. Do not lock knees fully. Controlled return.'},
+    {name:'Bulgarian Split Squat',sets:'3×10',target:'Quads, glutes',form:'Rear foot elevated. Front foot far enough forward. Knee tracking over toes. Deep lunge.'},
+    {name:'Standing Calf Raise',sets:'4×15',target:'Gastrocnemius',form:'Full range — deep stretch at bottom, full extension at top. Slow tempo.'},
+  ]},
+  core:{name:'Core',icon:'⚡',desc:'Develop rectus abdominis, obliques, and deep stabilisers.',subs:['Rectus Abdominis','Obliques','Transverse Abdominis'],exercises:[
+    {name:'Plank',sets:'3×45s',target:'Transverse abdominis',form:'Forearms on floor. Body straight. Brace hard. Breathe normally. Do not let hips sag.'},
+    {name:'Dead Bug',sets:'3×10',target:'Deep core stabilisers',form:'Lie on back. Arms up. Lower opposite arm/leg while pressing low back into floor.'},
+    {name:'Cable Crunch',sets:'3×15',target:'Rectus abdominis',form:'Kneel at cable. Crunch elbows to knees. Hold 1 sec. Spine rounds — not hip flexion.'},
+    {name:'Russian Twist',sets:'3×20',target:'Obliques',form:'Lean back at 45°. Rotate torso, not just arms. Add weight for progression.'},
+    {name:'Hanging Leg Raise',sets:'3×12',target:'Lower abs',form:'Dead hang. Raise legs to parallel (bent knee) or higher (straight). Control descent.'},
+  ]},
+  home:{name:'Home Workouts',icon:'🏠',desc:'Effective bodyweight training requiring no equipment.',subs:['Cardio','Strength','Flexibility'],exercises:[
+    {name:'Burpee',sets:'4×10',target:'Full body conditioning',form:'From standing — squat, kick feet back, push-up, jump back to squat, explosive jump.'},
+    {name:'Push-Up',sets:'3×15',target:'Chest, triceps, shoulders',form:'Straight body line. Lower until chest nearly touches floor. Full extension at top.'},
+    {name:'Bodyweight Squat',sets:'3×20',target:'Quads, glutes',form:'Feet shoulder-width. Arms forward for balance. Break parallel. Drive through heels.'},
+    {name:'Mountain Climber',sets:'3×30s',target:'Core, cardio',form:'High plank position. Drive knees alternately to chest in running motion.'},
+    {name:'Reverse Lunge',sets:'3×12',target:'Quads, glutes, balance',form:'Step back. Lower knee toward floor. Front shin vertical. Drive through front heel.'},
+  ]},
+  loss:{name:'Weight Loss',icon:'🔥',desc:'High-intensity fat-burning programs with cardio focus.',subs:['HIIT','Cardio','Circuit'],exercises:[
+    {name:'Jump Squat',sets:'4×15',target:'Quads, cardio',form:'Squat to 90°. Explode up. Land softly with bent knees. Absorb impact through legs.'},
+    {name:'High Knees',sets:'4×30s',target:'Hip flexors, cardio',form:'Drive knees above hip level. Arms pumping. Stay on balls of feet. Fast cadence.'},
+    {name:'Box Jump',sets:'3×10',target:'Power, calorie burn',form:'Stand facing box. Hinge and swing arms. Jump onto box. Step down. Reset each rep.'},
+    {name:'Rowing Machine',sets:'4×500m',target:'Full body, cardio',form:'Drive with legs first. Lean back. Pull handle to lower chest. Return in reverse order.'},
+    {name:'Battle Ropes',sets:'4×30s',target:'Upper body, conditioning',form:'Slight squat. Alternate arm waves. Maintain rhythm. Engage core throughout.'},
+  ]},
+  upper:{name:'Upper Body',icon:'💪',desc:'Complete upper body training: push and pull movements.',subs:['Push','Pull','Shoulders'],exercises:[
+    {name:'Bench Press',sets:'4×6',target:'Chest, triceps',form:'Retract scapula. Lower bar controlled. Drive through chest. Bar path slight arc.'},
+    {name:'Pull-Up',sets:'4×6',target:'Lats, biceps',form:'Full hang. Pull elbows to hips. Chin above bar. Slow descent.'},
+    {name:'Dumbbell Shoulder Press',sets:'3×10',target:'Deltoids',form:'Seated or standing. Press overhead. Do not arch lower back. Full extension.'},
+    {name:'Dumbbell Row',sets:'3×10',target:'Mid back',form:'One hand on bench. Pull elbow to ceiling. Row to lower ribs.'},
+    {name:'Diamond Push-Up',sets:'3×12',target:'Triceps, inner chest',form:'Hands form diamond shape. Elbows track back. Full depth. Press up fully.'},
+  ]},
+  lower:{name:'Lower Body',icon:'🦵',desc:'Comprehensive leg and glute development program.',subs:['Quads','Hamstrings','Glutes','Calves'],exercises:[
+    {name:'Squat',sets:'4×8',target:'Quads, glutes',form:'Hip-width. Core braced. Break parallel. Neutral spine. Drive floor away.'},
+    {name:'Leg Curl',sets:'3×12',target:'Hamstrings',form:'Lie prone. Curl heels to glutes. Squeeze hamstrings. Control eccentric.'},
+    {name:'Hip Thrust',sets:'3×12',target:'Glutes',form:'Shoulders on bench. Bar on hips. Drive hips to ceiling. Full glute contraction at top.'},
+    {name:'Walking Lunge',sets:'3×12',target:'Quads, glutes, balance',form:'Long stride. Knee tracks toe. Do not let rear knee slam floor. Maintain upright torso.'},
+    {name:'Seated Calf Raise',sets:'4×20',target:'Soleus',form:'Weight on knees. Full range of motion. Pause at bottom. Squeeze at top.'},
+  ]},
+};
+
+function openWorkoutCat(cat){
+  const d=catData[cat]||{name:cat,icon:'🏋️',desc:'',subs:[],exercises:[]};
+  document.getElementById('wcatTitle').textContent=d.name;
+  let html=`<div class="detail-hero">
+    <div class="detail-hero-icon">${d.icon}</div>
+    <h1>${d.name}</h1><p>${d.desc}</p>
+    <div class="detail-stats">
+      <div class="stat-chip"><div class="val">${d.exercises.length}</div><div class="lbl">Exercises</div></div>
+      <div class="stat-chip"><div class="val">${d.subs.length}</div><div class="lbl">Sub-areas</div></div>
+    </div></div>`;
+  if(d.subs.length){
+    html+=`<div class="section-label">Sub-Areas</div><div class="pills" style="padding:8px 16px 12px">`;
+    d.subs.forEach(s=>html+=`<div class="pill">${s}</div>`);
+    html+=`</div>`;
+  }
+  html+=`<div class="section-label">Exercises</div>`;
+  d.exercises.forEach((ex,i)=>{
+    html+=`<div class="exercise-item" onclick="var n=this.nextElementSibling;n.style.display=n.style.display==='block'?'none':'block'">
+      <div class="ex-num">${i+1}</div>
+      <div class="ex-info"><div class="ex-name">${ex.name}</div><div class="ex-detail">${ex.sets} · ${ex.target}</div></div>
+      <div style="color:var(--text3);font-size:18px">›</div>
+    </div>
+    <div class="ex-expand">
+      <div style="font-size:11px;color:var(--gold);text-transform:uppercase;letter-spacing:0.08em;font-weight:700;margin-bottom:6px">Form Guide</div>
+      <div style="font-size:13px;color:var(--text2);line-height:1.6">${ex.form}</div>
+    </div>`;
+  });
+  document.getElementById('wcatContent').innerHTML=html;
+  openDetail('detail-workout-cat');
+}
+
+// PROGRAMS DATA
+const programData={
+  hiit:{name:'HIIT',icon:'⚡',duration:'25 min',desc:'High-Intensity Interval Training alternates short bursts of maximal effort with brief recovery. Research supports HIIT for improving VO2max, insulin sensitivity, and fat oxidation.',exercises:[
+    {name:'Jump Squat',sets:'40s on / 20s off',target:'Full body explosive'},
+    {name:'Push-Up',sets:'40s on / 20s off',target:'Upper body'},
+    {name:'High Knees',sets:'40s on / 20s off',target:'Cardio'},
+    {name:'Mountain Climber',sets:'40s on / 20s off',target:'Core & cardio'},
+    {name:'Burpee',sets:'40s on / 20s off',target:'Full body'},
+    {name:'Reverse Lunge',sets:'40s on / 20s off',target:'Legs'},
+  ]},
+  '7min':{name:'7-Minute Intense',icon:'7️⃣',duration:'7 min',desc:'The scientific 7-minute workout, published in ACSM Health & Fitness Journal. 12 exercises for 30 seconds each with 10-second rest. Combines aerobic and resistance training.',exercises:[
+    {name:'Jumping Jacks',sets:'30s / 10s rest',target:'Cardio'},
+    {name:'Wall Sit',sets:'30s / 10s rest',target:'Quads isometric'},
+    {name:'Push-Up',sets:'30s / 10s rest',target:'Upper body'},
+    {name:'Crunch',sets:'30s / 10s rest',target:'Core'},
+    {name:'Step-Up',sets:'30s / 10s rest',target:'Legs'},
+    {name:'Squat',sets:'30s / 10s rest',target:'Legs'},
+    {name:'Tricep Dip',sets:'30s / 10s rest',target:'Triceps'},
+    {name:'Plank',sets:'30s / 10s rest',target:'Core'},
+    {name:'High Knees',sets:'30s / 10s rest',target:'Cardio'},
+    {name:'Lunge',sets:'30s / 10s rest',target:'Legs'},
+    {name:'Push-Up with Rotation',sets:'30s / 10s rest',target:'Upper body + core'},
+    {name:'Side Plank',sets:'30s / 10s rest',target:'Obliques'},
+  ]},
+  beginner:{name:'Beginner Strength',icon:'🌱',duration:'35 min',desc:'Full-body beginner program based on foundational movement patterns. Emphasises proper form before loading. Designed for 3 days per week with rest days between sessions.',exercises:[
+    {name:'Goblet Squat',sets:'3×10',target:'Quads, glutes — squat pattern'},
+    {name:'Push-Up',sets:'3×8',target:'Chest, triceps — horizontal push'},
+    {name:'Dumbbell Row',sets:'3×10',target:'Back — horizontal pull'},
+    {name:'Romanian Deadlift',sets:'3×10',target:'Hamstrings — hip hinge'},
+    {name:'Overhead Press',sets:'3×8',target:'Shoulders — vertical push'},
+    {name:'Plank',sets:'3×30s',target:'Core stability'},
+  ]},
+  quicksweat:{name:'Quick Sweat',icon:'💦',duration:'15 min',desc:'A compact cardio circuit for when time is short. Keeps heart rate elevated throughout to maximise calorie burn in minimal time.',exercises:[
+    {name:'Jumping Jacks',sets:'3×45s',target:'Cardio warmup'},
+    {name:'Squat Jump',sets:'3×15',target:'Lower body power'},
+    {name:'Push-Up',sets:'3×12',target:'Upper body'},
+    {name:'High Knees',sets:'3×30s',target:'Cardio'},
+    {name:'Plank',sets:'3×30s',target:'Core'},
+  ]},
+  fullbody:{name:'High Intensity Full Body',icon:'🔥',duration:'40 min',desc:'Combines strength and cardio in one session. Uses supersets and minimal rest to keep intensity high throughout the full body session.',exercises:[
+    {name:'Barbell Squat',sets:'4×8',target:'Lower body'},
+    {name:'Bench Press',sets:'4×8',target:'Upper body push'},
+    {name:'Pull-Up',sets:'4×6',target:'Upper body pull'},
+    {name:'Romanian Deadlift',sets:'3×10',target:'Posterior chain'},
+    {name:'Dumbbell Shoulder Press',sets:'3×10',target:'Shoulders'},
+    {name:'Plank',sets:'3×45s',target:'Core'},
+    {name:'Battle Ropes',sets:'3×30s',target:'Conditioning'},
+  ]},
+  fastintense:{name:'Fast But Intense',icon:'⏱️',duration:'20 min',desc:'Maximum effort in minimal time. Uses compound movements and explosive exercises to challenge the full body with no wasted time between sets.',exercises:[
+    {name:'Deadlift',sets:'5×5',target:'Full posterior chain'},
+    {name:'Push Press',sets:'4×6',target:'Shoulders, triceps, legs'},
+    {name:'Barbell Row',sets:'4×8',target:'Back, biceps'},
+    {name:'Box Jump',sets:'3×10',target:'Lower body explosive'},
+    {name:'Battle Ropes',sets:'3×30s',target:'Conditioning finisher'},
+  ]},
+  prosession:{name:'Quick Pro Session',icon:'🎯',duration:'30 min',desc:'A structured athlete-style circuit used in professional conditioning. Focuses on movement quality, strength, and energy system development.',exercises:[
+    {name:'Power Clean',sets:'4×4',target:'Full body explosive'},
+    {name:'Front Squat',sets:'3×6',target:'Quads, core'},
+    {name:'Weighted Pull-Up',sets:'3×5',target:'Back, biceps'},
+    {name:'Dumbbell Bench Press',sets:'3×8',target:'Chest'},
+    {name:'Single Leg RDL',sets:'3×8',target:'Hamstrings, balance'},
+    {name:'Ab Wheel Rollout',sets:'3×10',target:'Core, lats'},
+  ]},
+  sweathrd:{name:'Sweat Hard',icon:'🌊',duration:'45 min',desc:'An endurance-focused session that builds both muscular and cardiovascular stamina. Higher rep ranges and shorter rest periods sustain intensity.',exercises:[
+    {name:'Treadmill Run',sets:'10 min',target:'Cardio base'},
+    {name:'Dumbbell Circuit',sets:'4 rounds',target:'Full body'},
+    {name:'Kettlebell Swing',sets:'4×20',target:'Posterior chain, cardio'},
+    {name:'Rowing Machine',sets:'3×500m',target:'Full body cardio'},
+    {name:'Burpee',sets:'3×15',target:'Conditioning'},
+    {name:'Plank',sets:'3×60s',target:'Core endurance'},
+  ]},
+  fullbodystr:{name:'Full Body Training',icon:'💪',duration:'50 min',desc:'A compound-lift centred session focusing on building overall strength. Uses progressive overload principles across primary movement patterns.',exercises:[
+    {name:'Deadlift',sets:'4×5',target:'Full posterior chain'},
+    {name:'Squat',sets:'4×5',target:'Legs, glutes'},
+    {name:'Bench Press',sets:'4×5',target:'Chest, triceps'},
+    {name:'Overhead Press',sets:'3×6',target:'Shoulders'},
+    {name:'Barbell Row',sets:'3×8',target:'Back, biceps'},
+    {name:'Dip',sets:'3×10',target:'Triceps, chest'},
+    {name:'Pull-Up',sets:'3×6',target:'Lats'},
+  ]},
+  upperlower:{name:'Upper / Lower Split',icon:'📐',duration:'45 min',desc:'A 4-day split alternating between upper and lower body sessions. Allows for greater training volume per muscle group with adequate recovery.',exercises:[
+    {name:'Upper A: Bench Press',sets:'4×6',target:'Chest'},
+    {name:'Upper A: Barbell Row',sets:'4×6',target:'Back'},
+    {name:'Upper A: Overhead Press',sets:'3×8',target:'Shoulders'},
+    {name:'Lower A: Squat',sets:'4×6',target:'Quads, glutes'},
+    {name:'Lower A: Romanian Deadlift',sets:'3×8',target:'Hamstrings'},
+    {name:'Lower A: Leg Press',sets:'3×10',target:'Quads'},
+  ]},
+  starter:{name:'Full Starter Program',icon:'🚀',duration:'6 weeks',desc:'A complete 6-week beginner program introducing fundamental movement patterns, building work capacity, and establishing consistent training habits. 3 sessions per week.',exercises:[
+    {name:'Week 1-2: Bodyweight Squat',sets:'3×10',target:'Foundation squat pattern'},
+    {name:'Week 1-2: Push-Up',sets:'3×8',target:'Foundation push pattern'},
+    {name:'Week 1-2: Hip Hinge',sets:'3×10',target:'Foundation hinge pattern'},
+    {name:'Week 3-4: Goblet Squat',sets:'3×10',target:'Loaded squat'},
+    {name:'Week 3-4: Dumbbell Row',sets:'3×10',target:'Loaded pull'},
+    {name:'Week 5-6: Barbell Squat',sets:'3×8',target:'Barbell introduction'},
+    {name:'Week 5-6: Bench Press',sets:'3×8',target:'Barbell push'},
+  ]},
+  allgroups:{name:'All Muscle Groups',icon:'🏆',duration:'60 min',desc:'A comprehensive single-session full body routine targeting every major muscle group. Used as a weekly reset or for those with limited training days.',exercises:[
+    {name:'Squat',sets:'3×8',target:'Legs, glutes'},
+    {name:'Romanian Deadlift',sets:'3×8',target:'Hamstrings'},
+    {name:'Bench Press',sets:'3×8',target:'Chest'},
+    {name:'Pull-Up',sets:'3×6',target:'Back, biceps'},
+    {name:'Overhead Press',sets:'3×8',target:'Shoulders'},
+    {name:'Barbell Curl',sets:'3×10',target:'Biceps'},
+    {name:'Tricep Pushdown',sets:'3×12',target:'Triceps'},
+    {name:'Lateral Raise',sets:'3×15',target:'Side deltoid'},
+    {name:'Face Pull',sets:'3×15',target:'Rear delt, rotator cuff'},
+    {name:'Plank',sets:'3×45s',target:'Core'},
+    {name:'Calf Raise',sets:'4×15',target:'Calves'},
+  ]},
+};
+
+function openProgram(id){
+  const d=programData[id]||{name:id,icon:'🏋️',duration:'—',desc:'A structured training program.',exercises:[]};
+  document.getElementById('progTitle').textContent=d.name;
+  let html=`<div class="detail-hero">
+    <div class="detail-hero-icon">${d.icon}</div>
+    <h1>${d.name}</h1><p style="margin-top:6px">${d.desc}</p>
+    <div class="detail-stats">
+      <div class="stat-chip"><div class="val">${d.duration}</div><div class="lbl">Duration</div></div>
+      <div class="stat-chip"><div class="val">${d.exercises.length}</div><div class="lbl">Exercises</div></div>
+    </div></div>
+  <div class="section-label">Exercise Plan</div>`;
+  d.exercises.forEach((ex,i)=>{
+    html+=`<div class="exercise-item">
+      <div class="ex-num">${i+1}</div>
+      <div class="ex-info"><div class="ex-name">${ex.name}</div><div class="ex-detail">${ex.sets} · ${ex.target}</div></div>
+    </div>`;
+  });
+  html+=`<div style="padding:16px"><button class="btn-gold" onclick="alert('Program saved to your schedule!')">Save Program</button></div>`;
+  document.getElementById('progContent').innerHTML=html;
+  openDetail('detail-program');
+}
+
+// YOGA DATA
+const yogaData={
+  morning:{name:'Morning Flow',emoji:'🌅',level:'beginner',duration:'20 min',desc:'A gentle energising sequence to wake the body and establish breath awareness. Suitable for any fitness level.',poses:[
+    {name:'Child\'s Pose (Balasana)',dur:'60s',desc:'Kneel, sit back on heels, extend arms forward. Breathe deeply. Releases lower back and hips.'},
+    {name:'Cat-Cow (Marjaryasana-Bitilasana)',dur:'60s',desc:'On all fours. Inhale — arch back, drop belly (cow). Exhale — round spine (cat). Synchronise with breath.'},
+    {name:'Downward Dog (Adho Mukha Svanasana)',dur:'60s',desc:'Inverted V shape. Press palms flat. Extend through spine. Pedal heels. Weight evenly distributed.'},
+    {name:'Low Lunge (Anjaneyasana)',dur:'45s each',desc:'Step one foot forward between hands. Lower rear knee. Hips sink forward. Arms up if stable.'},
+    {name:'Warrior I (Virabhadrasana I)',dur:'45s each',desc:'Front knee bent at 90°. Rear foot angled 45°. Hips squared forward. Arms overhead.'},
+    {name:'Mountain Pose (Tadasana)',dur:'30s',desc:'Stand tall. Feet hip-width. Activate legs. Roll shoulders back. Breathe.'},
+    {name:'Forward Fold (Uttanasana)',dur:'60s',desc:'Hinge at hips. Let head hang. Slight bend in knees if hamstrings are tight.'},
+    {name:'Seated Twist (Ardha Matsyendrasana)',dur:'45s each',desc:'Sit tall. Cross one leg over. Twist toward elevated knee. Lengthen spine on inhale, deepen on exhale.'},
+  ]},
+  relaxing:{name:'Relaxing Evening',emoji:'🌙',level:'beginner',duration:'25 min',desc:'A calming wind-down sequence designed to reduce cortisol, release muscular tension, and prepare the body for sleep.',poses:[
+    {name:'Legs Up the Wall (Viparita Karani)',dur:'3 min',desc:'Lie on back, legs straight up against wall. Passive inversion. Promotes venous return and calms nervous system.'},
+    {name:'Supine Twist (Supta Matsyendrasana)',dur:'60s each',desc:'Lie on back. Hug one knee to chest, guide it across body. Arms wide. Look away from knee. Release tension in spine.'},
+    {name:'Happy Baby (Ananda Balasana)',dur:'90s',desc:'Lie on back. Grab outer edges of feet. Knees wide, toward armpits. Rock gently side to side.'},
+    {name:'Child\'s Pose (Balasana)',dur:'2 min',desc:'Rest position. Extended arms or arms alongside body. Deep belly breaths.'},
+    {name:'Corpse Pose (Savasana)',dur:'5 min',desc:'Lie flat. Arms slightly away from body, palms up. Complete surrender. Consciously relax each body part.'},
+  ]},
+  power:{name:'Power Vinyasa',emoji:'🔥',level:'intermediate',duration:'40 min',desc:'A dynamic, flowing practice linking breath with movement. Builds strength, flexibility, and cardiovascular fitness simultaneously.',poses:[
+    {name:'Sun Salutation A (×5)',dur:'5 min',desc:'Mountain — Forward Fold — Half Lift — Plank — Chaturanga — Upward Dog — Downward Dog. Continuous flow.'},
+    {name:'Warrior II (Virabhadrasana II)',dur:'45s each',desc:'Wide stance. Front knee over ankle. Arms extended parallel to floor. Gaze over front fingers. Strong legs.'},
+    {name:'Triangle Pose (Trikonasana)',dur:'45s each',desc:'From Warrior II, straighten front leg. Reach front hand to shin or floor. Top arm extends up. Long spine.'},
+    {name:'Half Moon (Ardha Chandrasana)',dur:'45s each',desc:'Balance on front foot and front hand. Rear leg lifts to hip height. Top arm up. Open hips to side.'},
+    {name:'Chair Pose (Utkatasana)',dur:'60s',desc:'Feet together or hip-width. Bend knees as if sitting. Arms overhead. Weight in heels.'},
+    {name:'Crow Pose (Bakasana)',dur:'30s',desc:'Squat. Hands flat, shoulder-width. Knees on upper arms. Lean forward, lift feet. Core engaged.'},
+    {name:'Wheel Pose (Urdhva Dhanurasana)',dur:'30s ×3',desc:'Lie back. Feet flat, hip-width. Hands by ears, fingers pointing to shoulders. Press up, extend arms.'},
+  ]},
+  stretch:{name:'Full Body Stretch',emoji:'🧘',level:'beginner',duration:'30 min',desc:'A comprehensive flexibility session targeting all major muscle groups. Based on principles of static stretching for post-workout recovery.',poses:[
+    {name:'Standing Quad Stretch',dur:'45s each',desc:'Stand on one leg. Pull heel toward glute. Knees together. Hold wall for balance if needed.'},
+    {name:'Seated Hamstring Stretch',dur:'60s each',desc:'Sit on floor. Extend one leg. Fold forward over extended leg. Keep back long, not rounded.'},
+    {name:'Pigeon Pose (Eka Pada Rajakapotasana)',dur:'90s each',desc:'From Downward Dog, bring front knee toward wrist. Rear leg extends back. Sink hips toward floor.'},
+    {name:'Hip Flexor Lunge Stretch',dur:'60s each',desc:'Low lunge. Rear knee on floor. Sink hips forward and down. Tuck pelvis slightly. Feel stretch in rear hip flexor.'},
+    {name:'Thread the Needle',dur:'60s each',desc:'On all fours. Slide one arm under body, palm up. Rest shoulder and head on floor. Gentle spinal rotation.'},
+    {name:'Chest Opener',dur:'60s',desc:'Clasp hands behind back. Open chest upward. Shoulder blades squeeze. Chin slightly lifted.'},
+  ]},
+  balance:{name:'Balance & Focus',emoji:'⚖️',level:'intermediate',duration:'35 min',desc:'Develops proprioception, stability, and mental focus through challenging single-leg and balancing poses.',poses:[
+    {name:'Tree Pose (Vrksasana)',dur:'60s each',desc:'Stand on one foot. Place other foot on inner calf or thigh (not knee). Hands at heart or overhead. Gaze fixed point.'},
+    {name:'Warrior III (Virabhadrasana III)',dur:'45s each',desc:'Balance on one leg, torso parallel to floor, back leg extended. Arms forward or at sides. Core tight.'},
+    {name:'Eagle Pose (Garudasana)',dur:'45s each',desc:'Wrap one leg over standing leg. Wrap arms. Sink into standing hip. Focus on single point to balance.'},
+    {name:'Standing Split (Urdhva Prasarita Eka Padasana)',dur:'30s each',desc:'Forward fold with one leg lifted. Hands on floor or shin. Flex raised foot.'},
+    {name:'Dancer Pose (Natarajasana)',dur:'30s each',desc:'Stand tall. Kick one foot back. Reach back to grab ankle. Kick into hand. Other arm extends forward.'},
+  ]},
+  advanced:{name:'Advanced Flow',emoji:'🦅',level:'advanced',duration:'50 min',desc:'A challenging sequence incorporating arm balances, deep backbends, and inversions. Requires an established yoga practice.',poses:[
+    {name:'Handstand (Adho Mukha Vrksasana)',dur:'Hold 30s',desc:'Against wall initially. Hands shoulder-width. Kick up. Press floor away. Body in straight line.'},
+    {name:'Forearm Stand (Pincha Mayurasana)',dur:'Hold 30s',desc:'Forearms parallel, shoulder-width. Kick up from Dolphin Pose. Engage core. Look between hands.'},
+    {name:'Kapotasana (Full Pigeon)',dur:'30s',desc:'From Camel, take hands to floor behind. Deep backbend. Requires significant hip flexor and quad flexibility.'},
+    {name:'Eight-Angle Pose (Astavakrasana)',dur:'Hold 20s',desc:'Arm balance requiring hip and hamstring flexibility. Legs hook over one arm, body leans forward.'},
+    {name:'Headstand (Sirsasana)',dur:'Hold 60s',desc:'Crown of head on floor, forearms forming tripod. Walk feet in, lift both legs. Supported inversion.'},
+  ]},
+  stress:{name:'Stress Relief',emoji:'💆',level:'beginner',duration:'20 min',desc:'A restorative sequence using passive holds, breathwork, and gentle movement to activate the parasympathetic nervous system.',poses:[
+    {name:'Supported Child\'s Pose',dur:'3 min',desc:'Bolster or folded blanket under torso. Arms forward. Completely passive. Breathe into back body.'},
+    {name:'Seated Forward Fold',dur:'2 min',desc:'Legs extended. Fold over legs. Support forehead on block if needed. Release all effort.'},
+    {name:'Supine Butterfly',dur:'3 min',desc:'Lie back. Soles of feet together, knees wide. Hands on belly. Breathe into hands. Complete release.'},
+    {name:'Legs Up the Wall',dur:'5 min',desc:'Passive inversion. Promotes lymphatic drainage and calms the nervous system. Add eye pillow.'},
+    {name:'Savasana',dur:'5 min',desc:'Complete stillness. No adjustments. Allow body to integrate practice. Systematic relaxation.'},
+  ]},
+  'core-yoga':{name:'Core & Strength',emoji:'🎯',level:'intermediate',duration:'35 min',desc:'Combines yoga postures that specifically challenge core strength, stability, and muscular endurance throughout the body.',poses:[
+    {name:'Plank Pose (Phalakasana)',dur:'60s',desc:'High plank. Straight line from head to heels. Navel draws in. Breathe steadily.'},
+    {name:'Side Plank (Vasisthasana)',dur:'45s each',desc:'Rotate to one hand or forearm. Stack feet. Lift hips. Top arm up. Core and obliques engaged.'},
+    {name:'Boat Pose (Navasana)',dur:'45s ×3',desc:'Sit, lift legs to 45°. Arms parallel to floor. Balance on sit bones. Core fires to hold.'},
+    {name:'Low Plank Hold (Chaturanga)',dur:'30s ×3',desc:'From plank, lower until elbows at 90°. Elbows tracking back. Body parallel to floor.'},
+    {name:'Warrior III',dur:'45s each',desc:'Single-leg balance, body parallel to floor. Core engagement essential for stability.'},
+    {name:'Dolphin Pose',dur:'60s',desc:'Forearms on floor, inverted V shape. Walk feet in. Engage core and press forearms into floor.'},
+  ]},
+};
+
+function openYoga(id){
+  const d=yogaData[id];
+  if(!d||!d.name)return;
+  document.getElementById('yogaTitle').textContent=d.name;
+  let html=`<div class="detail-hero">
+    <div class="detail-hero-icon">${d.emoji}</div>
+    <h1>${d.name}</h1><p>${d.desc||''}</p>
+    <div class="detail-stats">
+      <div class="stat-chip"><div class="val">${d.duration||'—'}</div><div class="lbl">Duration</div></div>
+      <div class="stat-chip"><div class="val">${(d.poses||[]).length}</div><div class="lbl">Poses</div></div>
+    </div></div>
+  <div class="section-label">Sequence</div>`;
+  (d.poses||[]).forEach((p,i)=>{
+    html+=`<div class="exercise-item" onclick="var n=this.nextElementSibling;n.style.display=n.style.display==='block'?'none':'block'">
+      <div class="ex-num">${i+1}</div>
+      <div class="ex-info"><div class="ex-name">${p.name}</div><div class="ex-detail">${p.dur}</div></div>
+      <div style="color:var(--text3);font-size:18px">›</div>
+    </div>
+    <div class="ex-expand">
+      <div style="font-size:13px;color:var(--text2);line-height:1.6">${p.desc}</div>
+    </div>`;
+  });
+  document.getElementById('yogaContent').innerHTML=html;
+  openDetail('detail-yoga');
+}
+
+// BREATHING DATA
+const breathData={
+  box:{name:'Box Breathing',pattern:'4-4-4-4',science:'Box breathing activates the parasympathetic nervous system, reducing cortisol. Used by US Navy SEALs and first responders for stress management under pressure.',steps:[
+    {phase:'Inhale',sec:4,desc:'Breathe in slowly through your nose for 4 counts, filling your lungs completely from bottom to top.'},
+    {phase:'Hold',sec:4,desc:'Hold your breath for 4 counts. Remain still and relaxed. Do not clench any muscles.'},
+    {phase:'Exhale',sec:4,desc:'Breathe out slowly through your mouth for 4 counts, emptying your lungs fully.'},
+    {phase:'Hold',sec:4,desc:'Hold empty for 4 counts before beginning the next cycle.'},
+  ]},
+  '478':{name:'4-7-8 Breathing',pattern:'4-7-8',science:'Developed by Dr. Andrew Weil based on pranayama yoga techniques. The extended exhale relative to inhale engages the vagal brake, promoting relaxation and sleep onset.',steps:[
+    {phase:'Inhale',sec:4,desc:'Place tongue tip on the ridge behind your upper front teeth. Inhale quietly through your nose for 4 counts.'},
+    {phase:'Hold',sec:7,desc:'Hold your breath for 7 counts. Remain relaxed — do not clench jaw or tense muscles.'},
+    {phase:'Exhale',sec:8,desc:'Exhale completely through your mouth, making a whoosh sound, for 8 counts.'},
+  ]},
+  diaphragm:{name:'Diaphragmatic Breathing',pattern:'Belly Breathing',science:'Diaphragmatic breathing engages the primary breathing muscle, increases tidal volume, improves oxygen saturation, and activates the parasympathetic nervous system response.',steps:[
+    {phase:'Position',sec:0,desc:'Sit comfortably or lie flat. Place one hand on your chest and one on your abdomen.'},
+    {phase:'Inhale',sec:4,desc:'Breathe in through nose for 4 counts. The hand on abdomen should rise. Chest hand should remain still.'},
+    {phase:'Hold',sec:2,desc:'Brief 2-count hold at the top of the breath.'},
+    {phase:'Exhale',sec:6,desc:'Breathe out slowly through pursed lips for 6 counts. Feel the abdomen fall as the diaphragm releases.'},
+  ]},
+  alternate:{name:'Alternate Nostril Breathing',pattern:'Nadi Shodhana',science:'Nadi Shodhana is cited in yoga texts and modern research as reducing heart rate variability and anxiety. Theorised to balance hemispheric brain activity.',steps:[
+    {phase:'Position',sec:0,desc:'Sit comfortably. Right hand: thumb closes right nostril, ring finger closes left nostril.'},
+    {phase:'Close right, inhale left',sec:4,desc:'Close right nostril with thumb. Inhale slowly through left nostril for 4 counts.'},
+    {phase:'Close both, hold',sec:4,desc:'Close both nostrils. Hold for 4 counts.'},
+    {phase:'Open right, exhale',sec:4,desc:'Release thumb. Exhale slowly through right nostril for 4 counts.'},
+    {phase:'Inhale right, switch',sec:4,desc:'Inhale through right nostril. Close both, hold. Open left, exhale left. That completes one full cycle.'},
+  ]},
+  pursed:{name:'Pursed Lip Breathing',pattern:'2:4 Ratio',science:'Recommended by respiratory physiotherapists for exercise recovery and COPD management. Slows respiratory rate, improves alveolar ventilation, and reduces breathlessness.',steps:[
+    {phase:'Relax',sec:0,desc:'Relax neck and shoulder muscles completely. Keep mouth closed. Unclench your jaw.'},
+    {phase:'Inhale',sec:2,desc:'Breathe in slowly through the nose for 2 counts.'},
+    {phase:'Purse lips',sec:0,desc:'Pucker lips as if you are about to whistle or blow on hot food.'},
+    {phase:'Exhale',sec:4,desc:'Breathe out slowly and steadily through pursed lips for 4 counts. Do not force — let it flow.'},
+  ]},
+};
+
+let breathInterval=null,breathActive=false,breathCurrent=null;
+
+function openBreath(id){
+  const d=breathData[id];
+  if(!d)return;
+  breathCurrent=d;breathActive=false;
+  if(breathInterval)clearInterval(breathInterval);
+  document.getElementById('breathTitle').textContent=d.name;
+  let activeSteps=d.steps.filter(s=>s.sec>0);
+  let html=`<div class="detail-hero">
+    <div class="detail-hero-icon">🫁</div>
+    <h1>${d.name}</h1><p>${d.pattern}</p>
+  </div>
+  <div style="padding:16px 16px 0">
+    <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;font-weight:700;margin-bottom:8px">The Science</div>
+    <div style="font-size:13px;color:var(--text2);line-height:1.6;background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:12px">${d.science}</div>
+  </div>
+  <div class="breath-circle" id="breathCircle">
+    <div class="breath-inner">
+      <div class="breath-phase" id="breathPhaseText">${activeSteps.length?activeSteps[0].phase.toUpperCase():'—'}</div>
+      <div class="breath-count" id="breathCountText">${activeSteps.length?activeSteps[0].sec:'—'}</div>
+    </div>
+  </div>
+  <div style="text-align:center;font-size:13px;color:var(--text2);margin:-12px 0 16px;padding:0 24px;line-height:1.5" id="breathStepDesc">${activeSteps.length?activeSteps[0].desc:''}</div>
+  <div style="padding:0 16px 8px;display:flex;gap:8px">
+    <button class="btn-gold" id="breathStartBtn" onclick="toggleBreath()">Begin</button>
+    <button class="btn-outline" onclick="resetBreath()">Reset</button>
+  </div>
+  <div class="section-label" style="padding-top:16px">Step-by-Step Guide</div>`;
+  d.steps.forEach((s,i)=>{
+    html+=`<div class="step-card"><div class="step-num">${i+1}</div><div class="step-text"><strong>${s.phase}${s.sec?' ('+s.sec+'s)':''}</strong><br>${s.desc}</div></div>`;
+  });
+  html+=`<div style="height:16px"></div>`;
+  document.getElementById('breathContent').innerHTML=html;
+  openDetail('detail-breath');
+}
+
+function toggleBreath(){
+  if(!breathCurrent)return;
+  if(breathActive){
+    clearInterval(breathInterval);breathActive=false;
+    document.getElementById('breathStartBtn').textContent='Resume';
+  } else {
+    breathActive=true;
+    document.getElementById('breathStartBtn').textContent='Pause';
+    let steps=breathCurrent.steps.filter(s=>s.sec>0);
+    if(!steps.length)return;
+    let idx=0,remaining=steps[0].sec;
+    function tick(){
+      let s=steps[idx];
+      document.getElementById('breathPhaseText').textContent=s.phase.toUpperCase();
+      document.getElementById('breathCountText').textContent=remaining;
+      document.getElementById('breathStepDesc').textContent=s.desc;
+      let circ=document.getElementById('breathCircle');
+      let phase=s.phase.toLowerCase();
+      circ.className='breath-circle '+(phase.includes('inhale')?'expand':phase.includes('hold')?'hold':'contract');
+    }
+    tick();
+    breathInterval=setInterval(()=>{
+      remaining--;
+      if(remaining<=0){idx=(idx+1)%steps.length;remaining=steps[idx].sec;}
+      tick();
+    },1000);
+  }
+}
+function resetBreath(){
+  clearInterval(breathInterval);breathActive=false;
+  if(breathCurrent){
+    let steps=breathCurrent.steps.filter(s=>s.sec>0);
+    if(steps.length){
+      document.getElementById('breathPhaseText').textContent=steps[0].phase.toUpperCase();
+      document.getElementById('breathCountText').textContent=steps[0].sec;
+      document.getElementById('breathStepDesc').textContent=steps[0].desc;
+    }
+    document.getElementById('breathStartBtn').textContent='Begin';
+    document.getElementById('breathCircle').className='breath-circle';
+  }
+}
+
+// DIET DATA
+const dietData={
+  'pre-energy':{name:'Energy Boost Meal',tag:'Pre-Workout',desc:'Consume 1–3 hours before training to ensure adequate fuel without digestive discomfort during exercise.',principles:[
+    'Complex carbohydrates provide sustained glucose for working muscles',
+    'Moderate protein (20–30g) primes muscle protein synthesis',
+    'Low fat and fibre immediately pre-workout reduces GI distress',
+    'Hydration: aim for 500ml water 2 hours before exercise',
+  ],meals:[
+    {name:'Oats with Banana & Honey',detail:'80g rolled oats, 1 banana, 1 tbsp honey. ~400 kcal, 65g carbs, 12g protein.'},
+    {name:'Whole Grain Toast with Eggs',detail:'2 slices whole grain toast, 2 scrambled eggs. ~350 kcal, 40g carbs, 22g protein.'},
+    {name:'Greek Yogurt with Granola',detail:'200g Greek yogurt, 40g granola, mixed berries. ~320 kcal, 45g carbs, 20g protein.'},
+  ]},
+  'post-recovery':{name:'Recovery Meal',tag:'Post-Workout',desc:'Consumed within 30–60 minutes post-training. Optimal window for glycogen resynthesis and muscle protein synthesis.',principles:[
+    'Protein 20–40g per meal to maximise muscle protein synthesis (MPS)',
+    'Fast-absorbing carbohydrates replenish glycogen stores depleted during training',
+    'Anti-inflammatory foods (salmon, berries, leafy greens) support tissue recovery',
+    'Rehydrate with water and electrolytes if sweating was heavy',
+  ],meals:[
+    {name:'Chicken, Rice & Broccoli',detail:'150g chicken breast, 200g cooked rice, 100g broccoli. ~450 kcal, 55g carbs, 40g protein.'},
+    {name:'Protein Shake with Banana',detail:'30g whey protein, 250ml milk, 1 banana. ~350 kcal, 50g carbs, 30g protein.'},
+    {name:'Salmon with Sweet Potato',detail:'150g salmon fillet, 200g sweet potato. ~480 kcal, 45g carbs, 35g protein. Rich in omega-3.'},
+  ]},
+  'calorie-deficit':{name:'Calorie Deficit Plan',tag:'Weight Loss',desc:'Based on a moderate 300–500 kcal daily deficit. High-volume, low-calorie foods maintain satiety while supporting lean mass preservation.',principles:[
+    'Calorie deficit of 300–500 kcal below TDEE is associated with sustainable fat loss',
+    'High protein intake (1.6–2g/kg) preserves muscle mass during energy restriction',
+    'High-fibre, high-volume foods (vegetables, legumes) improve satiety signals',
+    'Avoid severe restriction — evidence supports slow, sustained deficits over crash dieting',
+  ],meals:[
+    {name:'Grilled Chicken Salad',detail:'150g grilled chicken, large mixed greens, cucumber, tomato, lemon dressing. ~300 kcal, 10g carbs, 35g protein.'},
+    {name:'Lentil Soup',detail:'200g cooked lentils, vegetables, spices. ~280 kcal, 40g carbs, 18g protein. High fibre.'},
+    {name:'Egg White Omelette',detail:'4 egg whites, spinach, mushrooms, peppers. ~180 kcal, 8g carbs, 24g protein.'},
+  ]},
+  'muscle-gain':{name:'Muscle Building Plan',tag:'Weight Gain',desc:'Caloric surplus of 250–500 kcal with high protein intake (1.6–2.2 g/kg body weight). Nutrient timing around training maximises hypertrophic response.',principles:[
+    'A modest caloric surplus minimises fat gain while supporting muscle protein synthesis',
+    'Protein distribution across 3–5 meals (0.4g/kg per meal) maximises MPS throughout the day',
+    'Carbohydrates around training support performance and glycogen replenishment',
+    'Creatine monohydrate (3–5g/day) is the most evidence-supported supplement for hypertrophy',
+  ],meals:[
+    {name:'Beef & Rice Bowl',detail:'200g lean ground beef, 300g cooked rice, avocado. ~700 kcal, 75g carbs, 45g protein.'},
+    {name:'Full Fat Greek Yogurt & Granola',detail:'300g full fat Greek yogurt, 60g granola, banana. ~550 kcal, 65g carbs, 25g protein.'},
+    {name:'Salmon, Quinoa & Vegetables',detail:'200g salmon, 200g cooked quinoa, roasted vegetables. ~650 kcal, 60g carbs, 50g protein.'},
+  ]},
+  'veg-plan':{name:'Plant-Based Fitness',tag:'Vegetarian',desc:'Combines complementary plant proteins for complete amino acid profiles. Emphasis on iron, zinc, B12, omega-3, and calcium sources for athletic demands.',principles:[
+    'Combine legumes with grains (rice + lentils, bread + hummus) for complete amino acid profiles',
+    'Vitamin B12 must be supplemented or sourced from fortified foods on plant-based diets',
+    'Non-heme iron absorption is enhanced by consuming vitamin C alongside iron-rich plant foods',
+    'Algae-based omega-3 (DHA/EPA) is the plant-based equivalent to fish oil',
+  ],meals:[
+    {name:'Lentil & Quinoa Bowl',detail:'150g cooked lentils, 150g quinoa, roasted vegetables, tahini. ~500 kcal, 65g carbs, 28g protein.'},
+    {name:'Tofu Stir-Fry with Brown Rice',detail:'200g firm tofu, brown rice, broccoli, edamame, soy sauce. ~480 kcal, 55g carbs, 30g protein.'},
+    {name:'Tempeh & Sweet Potato',detail:'150g tempeh, 200g sweet potato, spinach, peanut sauce. ~520 kcal, 55g carbs, 32g protein.'},
+  ]},
+  'nonveg-plan':{name:'High-Protein Omnivore',tag:'Non-Vegetarian',desc:'Leverages animal protein high bioavailability and complete amino acid profiles to optimise muscle protein synthesis throughout the day.',principles:[
+    'Animal proteins have high biological value and complete essential amino acid profiles',
+    'Egg whites and whey protein are among the fastest-absorbing protein sources',
+    'Fatty fish (salmon, mackerel) provide EPA and DHA — anti-inflammatory omega-3 fatty acids',
+    'Diversify protein sources across meals for full micronutrient coverage',
+  ],meals:[
+    {name:'Turkey Mince & Rice',detail:'200g turkey mince, 250g cooked rice, mixed vegetables. ~500 kcal, 55g carbs, 45g protein.'},
+    {name:'Tuna Salad with Whole Grain Bread',detail:'150g tuna in water, 2 slices whole grain bread, avocado, tomato. ~420 kcal, 35g carbs, 38g protein.'},
+    {name:'Eggs & Sweet Potato Hash',detail:'3 whole eggs, 200g sweet potato, peppers, onion. ~450 kcal, 45g carbs, 28g protein.'},
+  ]},
+};
+
+function openDiet(id){
+  const d=dietData[id];
+  if(!d)return;
+  document.getElementById('dietTitle').textContent=d.name;
+  let html=`<div class="detail-hero">
+    <div class="detail-hero-icon">🥗</div>
+    <h1>${d.name}</h1><p>${d.desc}</p>
+  </div>
+  <div class="section-label">Evidence-Based Principles</div>`;
+  d.principles.forEach((p,i)=>{
+    html+=`<div class="step-card"><div class="step-num">${i+1}</div><div class="step-text">${p}</div></div>`;
+  });
+  html+=`<div class="section-label">Sample Meals</div>`;
+  d.meals.forEach(m=>{
+    html+=`<div style="background:var(--bg3);border:1px solid var(--border);border-radius:10px;margin:0 16px 10px;padding:12px">
+      <div style="font-weight:600;font-size:14px;margin-bottom:4px">${m.name}</div>
+      <div style="font-size:12px;color:var(--text2);line-height:1.5">${m.detail}</div>
+    </div>`;
+  });
+  html+=`<div style="height:16px"></div>`;
+  document.getElementById('dietContent').innerHTML=html;
+  openDetail('detail-diet');
+}
+
+// COMBAT DATA
+const combatData={
+  jab:{name:'Jab',icon:'👊',desc:'The jab is a straight punch thrown with the lead hand from the orthodox stance. It is the most frequently used punch in boxing — used for range control, disruption, and setting up power shots.',steps:[
+    {phase:'Guard Position',desc:'Feet shoulder-width apart. Lead foot forward (left for orthodox). Hands at cheekbone height, fists loose. Chin down. Elbows tucked to ribs.'},
+    {phase:'Extend Lead Hand',desc:'Shoot lead hand straight forward, rotating fist so palm faces down at full extension. Elbow locks briefly. Rear hand must not drop — keep guard.'},
+    {phase:'Hip & Shoulder Rotation',desc:'Slight rotation of lead shoulder and hip toward target adds snap to the punch. Pivot slightly on lead foot ball for added power.'},
+    {phase:'Retract Immediately',desc:'Pull hand back along the same straight path at full speed. Slow retraction exposes your jaw. Return immediately to guard position.'},
+    {phase:'Common Errors',desc:'Dropping rear hand during jab. Overextending and leaning forward off-balance. Telegraphing by pulling back first. Not rotating the fist to palm-down.'},
+  ]},
+  cross:{name:'Cross',icon:'✊',desc:'The cross is the primary power punch, thrown with the rear hand in a straight line through the centreline. Power is generated from the ground up through leg drive and hip rotation.',steps:[
+    {phase:'Guard Position',desc:'Maintain standard guard. Weight distribution allows the rear hip to drive forward explosively.'},
+    {phase:'Drive Rear Hip Forward',desc:'The punch initiates from the ground. Push off rear foot ball. Drive rear hip forward toward the target. This is the engine of the cross.'},
+    {phase:'Shoulder & Arm Extension',desc:'As hip rotates, rear shoulder follows naturally. Extend rear arm in a straight line along the centreline. Rotate fist to palm-down at point of impact.'},
+    {phase:'Pivot on Rear Foot',desc:'Rear heel rises as you pivot on the ball of the rear foot. Full hip rotation is what transfers leg power through the punch.'},
+    {phase:'Retract & Guard',desc:'Immediately return rear hand to cheek. Reset guard position. The cross exposes your chin momentarily — speed of retraction is essential.'},
+  ]},
+  hook:{name:'Hook',icon:'🤜',desc:'The hook is a horizontal arc punch targeting the side of the head (temple or jaw). Unlike straight punches, the hook travels along a curved path and is most powerful at close to mid range.',steps:[
+    {phase:'Guard Position',desc:'Start in standard guard. The hook is most effective following a jab-cross combination that brings your opponent square-on to you.'},
+    {phase:'Bend Lead Elbow to 90°',desc:'Raise lead elbow to shoulder height. Elbow bent at approximately 90 degrees. Fist stays at cheek height. The arm does not swing — the rotation of the body drives the punch.'},
+    {phase:'Rotate Core & Hips',desc:'The power source is hip and core rotation. Torso drives forward and around. The shoulder, arm, and fist follow the rotation — not the other way around.'},
+    {phase:'Pivot Lead Foot',desc:'Pivot on the ball of the lead foot. Heel rises and rotates inward. This drives hip and shoulder rotation. Foot pivot is essential for full power transfer.'},
+    {phase:'Impact & Return',desc:'Strike with the first two knuckles. Thumb pointing upward or slightly inward. Immediately return to guard. Rear hand must not drop during execution.'},
+  ]},
+};
+
+function openCombat(id){
+  const d=combatData[id];
+  if(!d)return;
+  document.getElementById('combatTitle').textContent=d.name;
+  let html=`<div class="detail-hero">
+    <div class="detail-hero-icon">${d.icon}</div>
+    <h1>${d.name}</h1><p>${d.desc}</p>
+  </div>
+  <div class="section-label">Technique Breakdown</div>`;
+  d.steps.forEach((s,i)=>{
+    html+=`<div class="step-card"><div class="step-num">${i+1}</div><div class="step-text"><strong>${s.phase}</strong><br>${s.desc}</div></div>`;
+  });
+  html+=`<div style="padding:16px">
+    <div style="background:rgba(255,203,31,0.06);border:1px solid rgba(255,203,31,0.2);border-radius:10px;padding:12px">
+      <div style="font-size:11px;color:var(--gold);text-transform:uppercase;letter-spacing:0.08em;font-weight:700;margin-bottom:6px">Training Drill</div>
+      <div style="font-size:13px;color:var(--text2);line-height:1.6">Shadow box in front of a mirror. Perform 3 rounds of 1 minute each, focusing solely on this technique. Prioritise form over speed. Film from a side angle to review guard, foot position, and rotation.</div>
+    </div>
+  </div><div style="height:16px"></div>`;
+  document.getElementById('combatContent').innerHTML=html;
+  openDetail('detail-combat');
+}
+
+// Close timer on outside click
+document.addEventListener('click',function(e){
+  const modal=document.getElementById('timerModal');
+  const chip=document.querySelector('.timer-chip');
+  if(modal.classList.contains('open')&&!modal.contains(e.target)&&!chip.contains(e.target)){
+    modal.classList.remove('open');
+  }
+});
+</script>
+</body>
+</html>
